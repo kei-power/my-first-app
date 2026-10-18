@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#b8e8ff">
+    <title>そらいろアドベンチャー</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    ようこそ！私のページへ！
+    <main class="game-shell">
+        <header class="game-header">
+            <div>
+                <p class="eyebrow">SIDE-SCROLLING ADVENTURE</p>
+                <h1>そらいろアドベンチャー</h1>
+            </div>
+            <p class="goal">コインを集めて、ゴールを目指そう！</p>
+        </header>
+
+        <section class="game-frame" aria-label="横スクロールアクションゲーム">
+            <canvas id="game" width="960" height="540" aria-label="ゲーム画面"></canvas>
+            <div class="hud" aria-live="polite">
+                <span>🪙 <span id="coin-count">0</span> / 5</span>
+                <button id="restart" type="button">最初から</button>
+            </div>
+            <div class="touch-controls" aria-label="タッチ操作">
+                <button type="button" data-key="ArrowLeft" aria-label="左へ">◀</button>
+                <button type="button" data-key="ArrowRight" aria-label="右へ">▶</button>
+                <button type="button" data-key="Space" aria-label="ジャンプ">ジャンプ</button>
+            </div>
+        </section>
+
+        <footer class="instructions">
+            <span><kbd>←</kbd><kbd>→</kbd> または <kbd>A</kbd><kbd>D</kbd> 移動</span>
+            <span><kbd>スペース</kbd> ジャンプ</span>
+            <span>コインを集めて旗に触れよう</span>
+        </footer>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
