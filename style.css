@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
 
 :root {
-    font-family: 'Nunito', 'Noto Sans JP', sans-serif;
-    color: #183b56;
-    background: #f3f9fc;
+    font-family: 'Courier New', 'Noto Sans JP', monospace;
+    color: #fff1ca;
+    background: #171b3f;
     font-synthesis: none;
 }
 
@@ -18,10 +18,16 @@ body {
     display: grid;
     place-items: center;
     padding: 28px 18px;
+    background:
+        linear-gradient(180deg, #171b3f 0%, #302d4b 100%);
 }
 
 .game-shell {
     width: min(100%, 1040px);
+    padding: 22px;
+    border: 4px solid #735273;
+    background: #302d4b;
+    box-shadow: 8px 8px 0 #101329, 12px 12px 0 #735273;
 }
 
 .game-header {
@@ -34,15 +40,15 @@ body {
 
 .eyebrow {
     margin: 0 0 5px;
-    color: #5d91aa;
+    color: #ffd166;
     font-size: 11px;
     font-weight: 900;
-    letter-spacing: .16em;
+    letter-spacing: .12em;
 }
 
 h1 {
     margin: 0;
-    color: #173d59;
+    color: #fff1ca;
     font-size: clamp(23px, 5vw, 34px);
     font-weight: 900;
     letter-spacing: .03em;
@@ -50,17 +56,17 @@ h1 {
 
 .goal {
     margin: 0 0 4px;
-    color: #567487;
+    color: #a4e6a0;
     font-size: 14px;
 }
 
 .game-frame {
     position: relative;
     overflow: hidden;
-    border: 5px solid #fff;
-    border-radius: 20px;
-    background: #9addf7;
-    box-shadow: 0 16px 45px #24516a1c, 0 3px 10px #24516a12;
+    border: 4px solid #f3a66b;
+    border-radius: 2px;
+    background: #171b3f;
+    box-shadow: 0 0 0 4px #171b3f, 0 0 0 7px #735273;
 }
 
 canvas {
@@ -83,24 +89,25 @@ canvas {
 
 .hud span {
     padding: 8px 13px;
-    border: 1px solid #ffffffb8;
-    border-radius: 999px;
-    background: #ffffffdf;
-    color: #244c60;
+    border: 2px solid #ffd166;
+    border-radius: 2px;
+    background: #302d4b;
+    color: #fff1ca;
     font-size: 14px;
     font-weight: 900;
 }
 
 .hud button,
 .touch-controls button {
-    border: 0;
-    border-radius: 999px;
-    background: #ffffffdf;
-    color: #244c60;
+    border: 2px solid #f3a66b;
+    border-radius: 2px;
+    background: #49345c;
+    color: #fff1ca;
     font: inherit;
     font-weight: 800;
     cursor: pointer;
     pointer-events: auto;
+    box-shadow: 3px 3px 0 #171b3f;
 }
 
 .hud button {
@@ -109,7 +116,7 @@ canvas {
 
 .hud button:hover,
 .touch-controls button:hover {
-    background: #fff;
+    background: #735273;
 }
 
 .instructions {
@@ -118,7 +125,7 @@ canvas {
     flex-wrap: wrap;
     gap: 12px 26px;
     margin: 17px 8px 0;
-    color: #607c8e;
+    color: #d6c5c6;
     font-size: 13px;
 }
 
@@ -127,11 +134,11 @@ kbd {
     min-width: 23px;
     margin-right: 3px;
     padding: 2px 6px;
-    border: 1px solid #d5e3eb;
+    border: 2px solid #735273;
     border-bottom-width: 2px;
-    border-radius: 5px;
-    background: #fff;
-    color: #33576b;
+    border-radius: 2px;
+    background: #171b3f;
+    color: #ffd166;
     font: inherit;
     font-size: 11px;
     font-weight: 800;
@@ -184,7 +191,12 @@ kbd {
 
     .game-frame {
         border-width: 3px;
-        border-radius: 14px;
+        border-radius: 2px;
+    }
+
+    .game-shell {
+        padding: 14px;
+        box-shadow: 5px 5px 0 #101329, 8px 8px 0 #735273;
     }
 
     .hud {

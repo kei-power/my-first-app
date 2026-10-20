@@ -55,32 +55,53 @@ function roundedRect(x, y, width, height, radius, color) {
 
 function drawBackground() {
     const sky = context.createLinearGradient(0, 0, 0, HEIGHT);
-    sky.addColorStop(0, '#8bd8f5');
-    sky.addColorStop(1, '#d5f4ff');
+    sky.addColorStop(0, '#171b3f');
+    sky.addColorStop(0.58, '#51406b');
+    sky.addColorStop(1, '#d87879');
     context.fillStyle = sky;
     context.fillRect(0, 0, WIDTH, HEIGHT);
 
-    context.fillStyle = '#ffffffa6';
-    for (let i = 0; i < 9; i += 1) {
-        const x = ((i * 167 - cameraX * 0.22) % (WIDTH + 160) + WIDTH + 160) % (WIDTH + 160) - 80;
-        const y = 85 + (i % 3) * 62;
-        context.beginPath();
-        context.ellipse(x, y, 38, 13, 0, 0, Math.PI * 2);
-        context.ellipse(x + 24, y - 8, 24, 18, 0, 0, Math.PI * 2);
-        context.ellipse(x + 48, y, 35, 12, 0, 0, Math.PI * 2);
-        context.fill();
+    for (let i = 0; i < 42; i += 1) {
+        const x = (i * 193 + 31) % WIDTH;
+        const y = (i * 79 + 23) % 225;
+        context.fillStyle = i % 4 === 0 ? '#ffd27a' : '#fff1ca';
+        context.fillRect(x, y, i % 5 === 0 ? 4 : 2, i % 5 === 0 ? 4 : 2);
     }
 
-    context.fillStyle = '#87d6b2';
+    const sunX = 760 - cameraX * 0.08;
+    context.fillStyle = '#f3a66b';
+    context.fillRect(sunX, 174, 72, 72);
+    context.fillStyle = '#d87879';
+    context.fillRect(sunX, 222, 72, 6);
+    context.fillRect(sunX + 8, 234, 56, 5);
+    context.fillRect(sunX + 16, 245, 40, 4);
+
+    context.fillStyle = '#403957';
     context.beginPath();
-    context.moveTo(0, 425);
-    for (let x = 0; x <= WIDTH + 60; x += 60) {
-        const worldX = x + cameraX * 0.38;
-        context.lineTo(x, 385 + Math.sin(worldX / 140) * 20);
+    context.moveTo(0, 410);
+    for (let i = 0; i < 9; i += 1) {
+        const x = i * 150 - ((cameraX * 0.2) % 150);
+        context.lineTo(x, 410);
+        context.lineTo(x + 75, 305 + (i % 3) * 24);
+        context.lineTo(x + 150, 410);
     }
     context.lineTo(WIDTH, HEIGHT);
     context.lineTo(0, HEIGHT);
     context.fill();
+
+    context.fillStyle = '#302d4b';
+    const cityScroll = cameraX * 0.34;
+    for (let i = 0; i < 12; i += 1) {
+        const x = i * 94 - (cityScroll % 94);
+        const height = 52 + ((i * 37) % 75);
+        context.fillRect(x, 430 - height, 66, height);
+        context.fillStyle = '#e8a36d';
+        for (let row = 0; row < Math.floor(height / 18); row += 1) {
+            if ((i + row) % 2 === 0) context.fillRect(x + 13, 438 - height + row * 18, 6, 7);
+            if ((i + row) % 3 !== 0) context.fillRect(x + 39, 438 - height + row * 18, 6, 7);
+        }
+        context.fillStyle = '#302d4b';
+    }
 }
 
 function drawWorld() {
@@ -88,28 +109,35 @@ function drawWorld() {
     context.translate(-cameraX, 0);
 
     for (const platform of platforms) {
-        roundedRect(platform.x, platform.y, platform.width, platform.height, 10, '#9b654a');
+        context.fillStyle = '#49345c';
+        context.fillRect(platform.x, platform.y, platform.width, platform.height);
         if (platform.height > 30) {
-            roundedRect(platform.x, platform.y, platform.width, 18, 8, '#70c765');
-            context.fillStyle = '#91df75';
-            context.fillRect(platform.x + 4, platform.y + 14, platform.width - 8, 5);
+            context.fillStyle = '#55c7a5';
+            context.fillRect(platform.x, platform.y, platform.width, 12);
+            context.fillStyle = '#a4e6a0';
+            context.fillRect(platform.x, platform.y, platform.width, 4);
         } else {
-            roundedRect(platform.x, platform.y, platform.width, 9, 5, '#70c765');
+            context.fillStyle = '#55c7a5';
+            context.fillRect(platform.x, platform.y, platform.width, 7);
+            context.fillStyle = '#a4e6a0';
+            context.fillRect(platform.x, platform.y, platform.width, 3);
+        }
+        context.fillStyle = '#735273';
+        for (let x = platform.x + 24; x < platform.x + platform.width; x += 32) {
+            context.fillRect(x, platform.y + 16, 2, Math.max(0, platform.height - 16));
         }
     }
 
     drawGoal();
     for (const coin of coins) {
         if (coin.collected) continue;
-        context.fillStyle = '#f7b92f';
-        context.beginPath();
-        context.arc(coin.x, coin.y + Math.sin(performance.now() / 180 + coin.x) * 4, 12, 0, Math.PI * 2);
-        context.fill();
-        context.strokeStyle = '#ffe27a';
-        context.lineWidth = 3;
-        context.stroke();
-        context.fillStyle = '#fff4bb';
-        context.fillRect(coin.x - 2, coin.y - 6, 4, 12);
+        const coinY = coin.y + Math.sin(performance.now() / 180 + coin.x) * 4;
+        context.fillStyle = '#c77836';
+        context.fillRect(coin.x - 9, coinY - 11, 18, 22);
+        context.fillStyle = '#ffd166';
+        context.fillRect(coin.x - 6, coinY - 11, 12, 18);
+        context.fillStyle = '#fff1a8';
+        context.fillRect(coin.x - 2, coinY - 7, 4, 12);
     }
 
     drawPlayer();
@@ -118,38 +146,36 @@ function drawWorld() {
 
 function drawGoal() {
     const x = WORLD_WIDTH - 115;
-    context.fillStyle = '#fff';
-    context.fillRect(x, 332, 7, 133);
-    context.fillStyle = '#ff7380';
-    context.beginPath();
-    context.moveTo(x + 7, 334);
-    context.lineTo(x + 64, 351);
-    context.lineTo(x + 7, 369);
-    context.closePath();
-    context.fill();
-    context.fillStyle = '#ffe27a';
-    context.beginPath();
-    context.arc(x + 3, 328, 8, 0, Math.PI * 2);
-    context.fill();
+    context.fillStyle = '#f3d7a0';
+    context.fillRect(x, 332, 6, 133);
+    context.fillStyle = '#f3a66b';
+    context.fillRect(x + 6, 336, 44, 9);
+    context.fillRect(x + 6, 345, 34, 9);
+    context.fillRect(x + 6, 354, 24, 9);
+    context.fillStyle = '#ffd166';
+    context.fillRect(x - 4, 326, 14, 6);
+    context.fillRect(x, 322, 6, 14);
 }
 
 function drawPlayer() {
     const x = player.x;
     const y = player.y;
-    roundedRect(x + 2, y + 9, player.width - 4, player.height - 9, 11, '#f7a14b');
-    roundedRect(x + 3, y + 4, player.width - 6, 24, 10, '#ffd2a0');
-    context.fillStyle = '#fff';
-    context.beginPath();
-    context.arc(x + 12, y + 19, 4, 0, Math.PI * 2);
-    context.arc(x + 23, y + 19, 4, 0, Math.PI * 2);
-    context.fill();
-    context.fillStyle = '#294c63';
-    context.beginPath();
-    context.arc(x + 13, y + 20, 2, 0, Math.PI * 2);
-    context.arc(x + 24, y + 20, 2, 0, Math.PI * 2);
-    context.fill();
-    roundedRect(x + 7, y + 38, 9, 10, 4, '#566fd6');
-    roundedRect(x + 19, y + 38, 9, 10, 4, '#566fd6');
+    context.fillStyle = '#9b4e45';
+    context.fillRect(x + 2, y + 11, 30, 35);
+    context.fillStyle = '#f3a66b';
+    context.fillRect(x + 4, y + 5, 26, 23);
+    context.fillStyle = '#fff1ca';
+    context.fillRect(x + 8, y + 15, 6, 7);
+    context.fillRect(x + 21, y + 15, 6, 7);
+    context.fillStyle = '#302d4b';
+    context.fillRect(x + 10, y + 17, 3, 4);
+    context.fillRect(x + 23, y + 17, 3, 4);
+    context.fillStyle = '#55c7a5';
+    context.fillRect(x + 5, y + 36, 10, 12);
+    context.fillRect(x + 19, y + 36, 10, 12);
+    context.fillStyle = '#a4e6a0';
+    context.fillRect(x + 5, y + 36, 10, 3);
+    context.fillRect(x + 19, y + 36, 10, 3);
 }
 
 function update(delta) {
@@ -201,13 +227,18 @@ function update(delta) {
 }
 
 function drawMessage(title, subtitle) {
-    context.fillStyle = '#16384f99';
+    context.fillStyle = '#171b3fc9';
     context.fillRect(0, 0, WIDTH, HEIGHT);
-    roundedRect(WIDTH / 2 - 205, HEIGHT / 2 - 82, 410, 164, 22, '#ffffffed');
-    context.fillStyle = '#244c60';
+    context.fillStyle = '#302d4b';
+    context.fillRect(WIDTH / 2 - 205, HEIGHT / 2 - 82, 410, 164);
+    context.strokeStyle = '#ffd166';
+    context.lineWidth = 4;
+    context.strokeRect(WIDTH / 2 - 205, HEIGHT / 2 - 82, 410, 164);
+    context.fillStyle = '#fff1ca';
     context.textAlign = 'center';
     context.font = '900 34px "Noto Sans JP", sans-serif';
     context.fillText(title, WIDTH / 2, HEIGHT / 2 - 12);
+    context.fillStyle = '#f3a66b';
     context.font = '700 16px "Noto Sans JP", sans-serif';
     context.fillText(subtitle, WIDTH / 2, HEIGHT / 2 + 28);
     context.textAlign = 'start';
@@ -216,6 +247,10 @@ function drawMessage(title, subtitle) {
 function render() {
     drawBackground();
     drawWorld();
+    context.fillStyle = '#171b3f12';
+    for (let y = 0; y < HEIGHT; y += 4) {
+        context.fillRect(0, y, WIDTH, 1);
+    }
     if (gameState === 'won') {
         drawMessage('ゴール！', `コイン ${coins.filter((coin) => coin.collected).length} / ${coins.length} 枚ゲット`);
     }
