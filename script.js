@@ -55,32 +55,77 @@ function roundedRect(x, y, width, height, radius, color) {
 
 function drawBackground() {
     const sky = context.createLinearGradient(0, 0, 0, HEIGHT);
-    sky.addColorStop(0, '#8bd8f5');
-    sky.addColorStop(1, '#d5f4ff');
+    sky.addColorStop(0, '#08091f');
+    sky.addColorStop(0.62, '#15143b');
+    sky.addColorStop(1, '#35143f');
     context.fillStyle = sky;
     context.fillRect(0, 0, WIDTH, HEIGHT);
 
-    context.fillStyle = '#ffffffa6';
-    for (let i = 0; i < 9; i += 1) {
-        const x = ((i * 167 - cameraX * 0.22) % (WIDTH + 160) + WIDTH + 160) % (WIDTH + 160) - 80;
-        const y = 85 + (i % 3) * 62;
-        context.beginPath();
-        context.ellipse(x, y, 38, 13, 0, 0, Math.PI * 2);
-        context.ellipse(x + 24, y - 8, 24, 18, 0, 0, Math.PI * 2);
-        context.ellipse(x + 48, y, 35, 12, 0, 0, Math.PI * 2);
-        context.fill();
+    for (let i = 0; i < 48; i += 1) {
+        const x = (i * 197 + 43) % WIDTH;
+        const y = (i * 83 + 29) % 260;
+        context.fillStyle = i % 4 === 0 ? '#ff58dc' : '#8eefff';
+        context.globalAlpha = 0.35 + (i % 3) * 0.18;
+        context.fillRect(x, y, i % 5 === 0 ? 3 : 2, 2);
     }
+    context.globalAlpha = 1;
 
-    context.fillStyle = '#87d6b2';
+    const drawCityLayer = (parallax, baseY, color, windowColor, offset) => {
+        const scroll = cameraX * parallax;
+        const firstBuilding = Math.floor(scroll / 132) - 1;
+        context.save();
+        context.translate(-scroll, 0);
+        for (let i = firstBuilding; i < firstBuilding + 11; i += 1) {
+            const x = i * 132 + offset;
+            const height = 95 + ((i * 47 % 125) + 125) % 125;
+            const width = 90 + ((i * 19 % 30) + 30) % 30;
+            context.fillStyle = color;
+            context.fillRect(x, baseY - height, width, height);
+            context.fillStyle = windowColor;
+            context.globalAlpha = 0.65;
+            for (let row = 0; row < Math.floor(height / 22); row += 1) {
+                for (let column = 0; column < 3; column += 1) {
+                    if ((i + row + column) % 3 !== 0) {
+                        context.fillRect(x + 13 + column * 23, baseY - height + 15 + row * 22, 5, 9);
+                    }
+                }
+            }
+            context.globalAlpha = 1;
+        }
+        context.restore();
+    };
+
+    drawCityLayer(0.16, 420, '#171b43', '#fa4fca', 0);
+    drawCityLayer(0.32, 450, '#10152f', '#00eaff', 38);
+
+    context.fillStyle = '#11142e';
     context.beginPath();
     context.moveTo(0, 425);
     for (let x = 0; x <= WIDTH + 60; x += 60) {
         const worldX = x + cameraX * 0.38;
-        context.lineTo(x, 385 + Math.sin(worldX / 140) * 20);
+        context.lineTo(x, 430 + Math.sin(worldX / 140) * 12);
     }
     context.lineTo(WIDTH, HEIGHT);
     context.lineTo(0, HEIGHT);
     context.fill();
+
+    context.save();
+    context.strokeStyle = '#8b35c7';
+    context.globalAlpha = 0.38;
+    context.lineWidth = 1;
+    for (let x = -((cameraX * 0.55) % 80); x < WIDTH; x += 80) {
+        context.beginPath();
+        context.moveTo(WIDTH / 2 + (x - WIDTH / 2) * 0.15, 430);
+        context.lineTo(x, HEIGHT);
+        context.stroke();
+    }
+    for (let y = 448; y < HEIGHT; y += 20) {
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(WIDTH, y);
+        context.stroke();
+    }
+    context.restore();
 }
 
 function drawWorld() {
@@ -88,28 +133,42 @@ function drawWorld() {
     context.translate(-cameraX, 0);
 
     for (const platform of platforms) {
-        roundedRect(platform.x, platform.y, platform.width, platform.height, 10, '#9b654a');
+        context.save();
+        context.shadowColor = '#00eaff';
+        context.shadowBlur = 15;
+        roundedRect(platform.x, platform.y, platform.width, platform.height, 8, '#171a35');
+        context.shadowBlur = 0;
+        context.strokeStyle = '#00dff5';
+        context.lineWidth = 2;
+        context.strokeRect(platform.x + 1, platform.y + 1, platform.width - 2, platform.height - 2);
         if (platform.height > 30) {
-            roundedRect(platform.x, platform.y, platform.width, 18, 8, '#70c765');
-            context.fillStyle = '#91df75';
-            context.fillRect(platform.x + 4, platform.y + 14, platform.width - 8, 5);
+            context.fillStyle = '#ff38d1';
+            context.shadowColor = '#ff38d1';
+            context.shadowBlur = 12;
+            context.fillRect(platform.x + 4, platform.y, platform.width - 8, 5);
         } else {
-            roundedRect(platform.x, platform.y, platform.width, 9, 5, '#70c765');
+            roundedRect(platform.x, platform.y, platform.width, 8, 4, '#ff38d1');
         }
+        context.restore();
     }
 
     drawGoal();
     for (const coin of coins) {
         if (coin.collected) continue;
-        context.fillStyle = '#f7b92f';
+        const coinY = coin.y + Math.sin(performance.now() / 180 + coin.x) * 4;
+        context.save();
+        context.shadowColor = '#ffe45c';
+        context.shadowBlur = 18;
+        context.fillStyle = '#ffe45c';
         context.beginPath();
-        context.arc(coin.x, coin.y + Math.sin(performance.now() / 180 + coin.x) * 4, 12, 0, Math.PI * 2);
+        context.arc(coin.x, coinY, 12, 0, Math.PI * 2);
         context.fill();
-        context.strokeStyle = '#ffe27a';
+        context.strokeStyle = '#fff6b0';
         context.lineWidth = 3;
         context.stroke();
-        context.fillStyle = '#fff4bb';
-        context.fillRect(coin.x - 2, coin.y - 6, 4, 12);
+        context.fillStyle = '#fff9d8';
+        context.fillRect(coin.x - 2, coinY - 6, 4, 12);
+        context.restore();
     }
 
     drawPlayer();
@@ -118,38 +177,53 @@ function drawWorld() {
 
 function drawGoal() {
     const x = WORLD_WIDTH - 115;
-    context.fillStyle = '#fff';
-    context.fillRect(x, 332, 7, 133);
-    context.fillStyle = '#ff7380';
+    context.save();
+    context.shadowColor = '#ff38d1';
+    context.shadowBlur = 24;
+    context.strokeStyle = '#ff38d1';
+    context.lineWidth = 6;
     context.beginPath();
-    context.moveTo(x + 7, 334);
-    context.lineTo(x + 64, 351);
-    context.lineTo(x + 7, 369);
-    context.closePath();
-    context.fill();
-    context.fillStyle = '#ffe27a';
+    context.roundRect(x - 25, 325, 70, 140, 30);
+    context.stroke();
+    context.shadowColor = '#00eaff';
+    context.strokeStyle = '#00eaff';
+    context.lineWidth = 3;
     context.beginPath();
-    context.arc(x + 3, 328, 8, 0, Math.PI * 2);
+    context.roundRect(x - 15, 337, 50, 128, 24);
+    context.stroke();
+    context.fillStyle = '#00eaff';
+    context.globalAlpha = 0.16;
     context.fill();
+    context.globalAlpha = 1;
+    context.fillStyle = '#ffffff';
+    context.beginPath();
+    context.arc(x + 10, 323, 5, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
 }
 
 function drawPlayer() {
     const x = player.x;
     const y = player.y;
-    roundedRect(x + 2, y + 9, player.width - 4, player.height - 9, 11, '#f7a14b');
-    roundedRect(x + 3, y + 4, player.width - 6, 24, 10, '#ffd2a0');
-    context.fillStyle = '#fff';
+    context.save();
+    context.shadowColor = '#00eaff';
+    context.shadowBlur = 17;
+    roundedRect(x + 2, y + 9, player.width - 4, player.height - 9, 11, '#00cfe8');
+    roundedRect(x + 3, y + 4, player.width - 6, 24, 10, '#b8fbff');
+    context.shadowBlur = 0;
+    context.fillStyle = '#ffffff';
     context.beginPath();
     context.arc(x + 12, y + 19, 4, 0, Math.PI * 2);
     context.arc(x + 23, y + 19, 4, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = '#294c63';
+    context.fillStyle = '#172044';
     context.beginPath();
     context.arc(x + 13, y + 20, 2, 0, Math.PI * 2);
     context.arc(x + 24, y + 20, 2, 0, Math.PI * 2);
     context.fill();
-    roundedRect(x + 7, y + 38, 9, 10, 4, '#566fd6');
-    roundedRect(x + 19, y + 38, 9, 10, 4, '#566fd6');
+    roundedRect(x + 7, y + 38, 9, 10, 4, '#ff38d1');
+    roundedRect(x + 19, y + 38, 9, 10, 4, '#ff38d1');
+    context.restore();
 }
 
 function update(delta) {
@@ -201,16 +275,25 @@ function update(delta) {
 }
 
 function drawMessage(title, subtitle) {
-    context.fillStyle = '#16384f99';
+    context.fillStyle = '#050616c9';
     context.fillRect(0, 0, WIDTH, HEIGHT);
-    roundedRect(WIDTH / 2 - 205, HEIGHT / 2 - 82, 410, 164, 22, '#ffffffed');
-    context.fillStyle = '#244c60';
+    context.save();
+    context.shadowColor = '#00eaff';
+    context.shadowBlur = 24;
+    roundedRect(WIDTH / 2 - 205, HEIGHT / 2 - 82, 410, 164, 22, '#11152ff5');
+    context.strokeStyle = '#00eaff';
+    context.lineWidth = 2;
+    context.stroke();
+    context.shadowBlur = 0;
+    context.fillStyle = '#b8fbff';
     context.textAlign = 'center';
     context.font = '900 34px "Noto Sans JP", sans-serif';
     context.fillText(title, WIDTH / 2, HEIGHT / 2 - 12);
     context.font = '700 16px "Noto Sans JP", sans-serif';
+    context.fillStyle = '#ff8de7';
     context.fillText(subtitle, WIDTH / 2, HEIGHT / 2 + 28);
     context.textAlign = 'start';
+    context.restore();
 }
 
 function render() {
