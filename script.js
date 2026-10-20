@@ -32,8 +32,15 @@ const coinLocations = [
     { x: 2300, y: 315 },
 ];
 
+const enemyLocations = [
+    { x: 175, minX: 70, maxX: 510, platformIndex: 0, speed: 85 },
+    { x: 790, minX: 655, maxX: 995, platformIndex: 1, speed: 105 },
+    { x: 1810, minX: 1635, maxX: 2010, platformIndex: 3, speed: 95 },
+];
+
 let player;
 let coins;
+let enemies;
 let cameraX;
 let gameState;
 let previousTime = 0;
@@ -41,6 +48,14 @@ let previousTime = 0;
 function resetGame() {
     player = { x: 70, y: 400, width: 34, height: 48, velocityX: 0, velocityY: 0, grounded: false };
     coins = coinLocations.map((coin) => ({ ...coin, collected: false }));
+    enemies = enemyLocations.map((enemy) => ({
+        ...enemy,
+        y: platforms[enemy.platformIndex].y - 28,
+        width: 32,
+        height: 28,
+        direction: 1,
+        defeated: false,
+    }));
     cameraX = 0;
     gameState = 'playing';
     coinCount.textContent = '0';
@@ -129,6 +144,10 @@ function drawWorld() {
     }
 
     drawGoal();
+    for (const enemy of enemies) {
+        if (!enemy.defeated) drawEnemy(enemy);
+    }
+
     for (const coin of coins) {
         if (coin.collected) continue;
         const coinY = coin.y + Math.sin(performance.now() / 180 + coin.x) * 4;
@@ -178,8 +197,38 @@ function drawPlayer() {
     context.fillRect(x + 19, y + 36, 10, 3);
 }
 
+function drawEnemy(enemy) {
+    const x = enemy.x;
+    const y = enemy.y;
+    context.fillStyle = '#49345c';
+    context.fillRect(x + 2, y + 8, 28, 17);
+    context.fillStyle = '#f3a66b';
+    context.fillRect(x + 5, y + 3, 22, 17);
+    context.fillStyle = '#ffd166';
+    context.fillRect(x + 8, y, 4, 5);
+    context.fillRect(x + 20, y, 4, 5);
+    context.fillStyle = '#171b3f';
+    context.fillRect(x + 9, y + 9, 4, 6);
+    context.fillRect(x + 20, y + 9, 4, 6);
+    context.fillStyle = '#fff1ca';
+    context.fillRect(x + 10, y + 10, 2, 2);
+    context.fillRect(x + 21, y + 10, 2, 2);
+    context.fillStyle = '#c77836';
+    context.fillRect(x + 5, y + 25, 8, 3);
+    context.fillRect(x + 19, y + 25, 8, 3);
+}
+
 function update(delta) {
     if (gameState !== 'playing') return;
+
+    for (const enemy of enemies) {
+        if (enemy.defeated) continue;
+        enemy.x += enemy.direction * enemy.speed * delta;
+        if (enemy.x <= enemy.minX || enemy.x >= enemy.maxX) {
+            enemy.x = Math.max(enemy.minX, Math.min(enemy.maxX, enemy.x));
+            enemy.direction *= -1;
+        }
+    }
 
     const movingLeft = keys.has('ArrowLeft') || keys.has('KeyA');
     const movingRight = keys.has('ArrowRight') || keys.has('KeyD');
@@ -196,6 +245,26 @@ function update(delta) {
     player.velocityY = Math.min(player.velocityY + GRAVITY * delta, 1000);
     player.y += player.velocityY * delta;
     player.grounded = false;
+
+    for (const enemy of enemies) {
+        if (enemy.defeated) continue;
+        const overlapsX = player.x + player.width > enemy.x && player.x < enemy.x + enemy.width;
+        const overlapsY = player.y + player.height > enemy.y && player.y < enemy.y + enemy.height;
+        if (!overlapsX || !overlapsY) continue;
+
+        const stomped = player.velocityY > 0
+            && previousBottom <= enemy.y + 8
+            && player.y + player.height >= enemy.y;
+        if (stomped) {
+            enemy.defeated = true;
+            player.y = enemy.y - player.height;
+            player.velocityY = -JUMP_SPEED * 0.55;
+            continue;
+        }
+
+        resetGame();
+        return;
+    }
 
     for (const platform of platforms) {
         const overlapsX = player.x + player.width > platform.x && player.x < platform.x + platform.width;
