@@ -1,34 +1,34 @@
-# Copilot instructions
+# Copilotへの指示
 
-## Language
+## 言語
 
-- Conduct all conversations with the user in Japanese, including answers, explanations, and clarifying questions, unless the user explicitly requests another language.
+- ユーザーが別の言語を明示的に指定しない限り、回答、説明、確認の質問を含むすべてのやり取りを日本語で行ってください。
 
-## Project overview
+## プロジェクト概要
 
-そらいろアドベンチャー is a single-page side-scrolling platform game implemented with plain HTML, CSS, and JavaScript.
+そらいろアドベンチャーは、HTML、CSS、JavaScriptのみで実装された、1ページ構成の横スクロール型プラットフォームゲームです。
 
-- `index.html` defines the canvas, HUD, restart button, touch controls, and user-facing instructions.
-- `style.css` styles and responsively scales the game UI; touch buttons are shown on coarse-pointer devices.
-- `script.js` owns the game state, level data, input, physics, collision detection, camera, canvas rendering, and animation loop.
-- `README.md` describes how to launch and play the game.
+- `index.html` では、キャンバス、HUD、リスタートボタン、タッチ操作、プレイヤー向けの説明を定義しています。
+- `style.css` では、ゲーム画面のスタイルとレスポンシブ表示を設定しています。タッチボタンはポインターが粗いデバイスで表示されます。
+- `script.js` では、ゲーム状態、レベルデータ、入力、物理演算、衝突判定、カメラ、キャンバス描画、アニメーションループを管理しています。
+- `README.md` には、ゲームの起動方法と遊び方を記載しています。
 
-The canvas has a fixed 960×540 coordinate space while CSS scales it to fit the page. World objects use world coordinates; `cameraX` scrolls the rendered world while the background uses slower parallax movement.
+キャンバスの座標空間は960×540に固定されており、CSSでページに収まるよう拡大・縮小されます。ワールド内のオブジェクトにはワールド座標を使用します。描画するワールドは`cameraX`でスクロールし、背景はそれより遅いパララックス移動をします。
 
-## Build, test, and run
+## ビルド、テスト、実行
 
-There is no package manifest or configured build, automated test, or lint command.
+パッケージマニフェストや、設定済みのビルド、自動テスト、lintコマンドはありません。
 
-- Run locally with `python3 -m http.server 8000` from the repository root and open `http://localhost:8000`; opening `index.html` directly also works.
-- Check JavaScript syntax with `node --check script.js`.
-- For a focused manual check, verify keyboard movement and jumping, coin collection and HUD updates, falling/reset behavior, reaching the goal, and touch controls on a touch-capable device. There is no individual automated test command.
+- リポジトリのルートで`python3 -m http.server 8000`を実行し、`http://localhost:8000`を開くとローカルで起動できます。`index.html`を直接開いても動作します。
+- JavaScriptの構文は`node --check script.js`で確認できます。
+- 手動で重点的に確認する場合は、キーボードでの移動とジャンプ、コイン取得とHUDの更新、落下時のリセット、ゴール到達、タッチ対応デバイスでのタッチ操作を確認してください。個別の自動テストコマンドはありません。
 
-## Code conventions and coupled behavior
+## コーディング規約と連動する挙動
 
-- Keep the implementation browser-native and lightweight; the game currently has no framework, bundler, or external runtime dependencies.
-- Treat `platforms` and `coinLocations` in `script.js` as level source data. Platform entries drive both platform rendering and landing collision checks; update both paths if changing how an object behaves.
-- Keep canvas coordinates, `WORLD_WIDTH`, the goal position, and camera bounds consistent when changing level dimensions or adding world objects.
-- `resetGame()` initializes the player, coins, camera, game state, and HUD together. Keep reset behavior synchronized with any new state.
-- Keyboard and pointer controls share the `keys` set. Touch buttons map through their `data-key` attributes; preserve this shared input path when changing controls.
-- `index.html` element IDs and data attributes are queried directly by `script.js`; keep those hooks aligned when changing the UI.
-- Keep player-visible text in Japanese, consistent with the README and existing game UI.
+- ブラウザー標準の機能を使った軽量な実装を維持してください。現在、このゲームにはフレームワーク、バンドラー、外部の実行時依存関係はありません。
+- `script.js`の`platforms`と`coinLocations`はレベルの元データとして扱ってください。プラットフォームの各項目は、描画と着地時の衝突判定の両方に使われます。オブジェクトの挙動を変更する場合は、両方の処理を更新してください。
+- レベルのサイズを変更したりワールドオブジェクトを追加したりする場合は、キャンバス座標、`WORLD_WIDTH`、ゴールの位置、カメラの範囲に整合性を保ってください。
+- `resetGame()`はプレイヤー、コイン、カメラ、ゲーム状態、HUDをまとめて初期化します。新しい状態を追加する場合は、リセット処理にも反映してください。
+- キーボード操作とポインター操作は、共通の`keys`セットを使用します。タッチボタンは`data-key`属性を介して対応付けられています。操作方法を変更する場合も、この共通の入力経路を維持してください。
+- `index.html`の要素IDとデータ属性は、`script.js`から直接参照されます。UIを変更する場合は、参照先との整合性を保ってください。
+- プレイヤーに表示するテキストは、READMEや既存のゲームUIと同様に日本語にしてください。
